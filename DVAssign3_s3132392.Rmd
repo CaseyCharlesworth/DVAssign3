@@ -1,0 +1,56 @@
+---
+title: "MATH2270 Assignment 3"
+subtitle: "Interactive storytelling"
+output: html_notebook
+---
+
+## Student Details
+
+* Casey-Ann Charlesworth (s3132392)
+
+```{r}
+# Load your packages
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(magrittr)
+```
+
+## Data
+
+```{r}
+# Load your data and prepare for visualisation
+Fertility_full <- read.csv("FERTILITY_AGE_STATE.csv")
+Fertility_full <- Fertility_full[c(2,4,6,10,11)]
+#View(Fertility_full)
+Fertility <- Fertility_full %>% filter(Measure=="Births" & Region=="Australia")
+Fertility <- Fertility %>% filter(Age != "15 - 19" & Age != "20 - 24" & Age != "25 - 29" & 
+                                    Age != "30 - 34" & Age != "35 - 39" & Age != "40 - 44" &
+                                    Age != "45 - 49" & Age != "All ages")
+Fertility$Age <- as.integer(as.character(Fertility$Age)) 
+Fertility$Value <- as.integer(Fertility$Value)
+Fertility <- rename(Fertility, Year=Time)
+View(Fertility)
+```
+
+## Visualisation
+```{r}
+# Visualise your data
+
+p <- plot_ly(Fertility, x=~Year, y=~Value, frame=~Age, 
+             type="scatter", mode="lines", fill="tozeroy", showlegend=FALSE,
+             fillcolor="#fe6ba3", opacity=.2,
+             line=list(width=0)) %>%
+    layout(title="Australian birth trends from 1975 to 2015",
+           annotations=list(x=1, y=0, xanchor="right", xref="paper", yref="paper", yshift=-37, 
+                            text="Source: http://stat.data.abs.gov.au/Index.aspx?DataSetCode=FERTILITY_AGE_STATE", 
+                            showarrow=F, 
+                            font=list(size=7)),
+           xaxis = list(nticks=9), 
+           yaxis = list(title="Total births")) 
+
+
+p
+```
+
