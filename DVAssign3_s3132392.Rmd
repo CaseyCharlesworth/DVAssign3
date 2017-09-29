@@ -34,9 +34,19 @@ Fertility <- rename(Fertility, Year=Time)
 View(Fertility)
 ```
 
+```{r}
+username <- "s3132392"
+API <- "MpL20nNz2tIIL1FAXxdf"
+Sys.setenv("plotly_username" = username)
+Sys.setenv("plotly_api_key" = API)
+```
+
+
 ## Visualisation
 ```{r}
 # Visualise your data
+
+m <- list(l = 50, r = 50, b = 100, t = 100, pad = 4)
 
 p <- plot_ly(Fertility, x=~Year, y=~Value, frame=~Age, 
              type="scatter", mode="lines", fill="tozeroy", showlegend=FALSE,
@@ -46,11 +56,14 @@ p <- plot_ly(Fertility, x=~Year, y=~Value, frame=~Age,
            annotations=list(x=1, y=0, xanchor="right", xref="paper", yref="paper", yshift=-37, 
                             text="Source: http://stat.data.abs.gov.au/Index.aspx?DataSetCode=FERTILITY_AGE_STATE", 
                             showarrow=F, 
-                            font=list(size=7)),
+                            font=list(size=8)),
            xaxis = list(nticks=9), 
-           yaxis = list(title="Total births")) 
+           yaxis = list(title="Total births"),
+           autosize=F, width=850, height=550, margin=m) 
 
 
 p
+
+plotly_POST(p, filename="Aust-birth-trends", fileopt="overwrite", sharing="public")
 ```
 
