@@ -1,12 +1,16 @@
 ---
 title: "MATH2270 Assignment 3"
-subtitle: "Interactive storytelling"
+subtitle: "Interactive storytelling_graph 1"
 output: html_notebook
 ---
 
 ## Student Details
 
 * Casey-Ann Charlesworth (s3132392)
+
+## "The Conversation" Article Details
+
+* The article this visualisation relates to is https://theconversation.com/slowing-the-biological-clock-wont-solve-family-planning-dilemmas-6088, specifically the section labelled "Birth trends"
 
 ```{r}
 # Load your packages
@@ -18,18 +22,17 @@ library(magrittr)
 ```
 
 ## Data
-
 ```{r}
 # Load your data and prepare for visualisation
 Fertility_full <- read.csv("FERTILITY_AGE_STATE.csv")
 Fertility_full <- Fertility_full[c(2,4,6,10,11)]
 #View(Fertility_full)
-Fertility <- Fertility_full %>% filter(Measure=="Births" & Region=="Australia")
+Fertility <- Fertility_full %>% filter(Measure=="Fertility rate" & Region=="Australia")
 Fertility <- Fertility %>% filter(Age != "15 - 19" & Age != "20 - 24" & Age != "25 - 29" & 
                                     Age != "30 - 34" & Age != "35 - 39" & Age != "40 - 44" &
                                     Age != "45 - 49" & Age != "All ages")
 Fertility$Age <- as.integer(as.character(Fertility$Age)) 
-Fertility$Value <- as.integer(Fertility$Value)
+#Fertility$Value <- as.integer(Fertility$Value)
 Fertility <- rename(Fertility, Year=Time)
 View(Fertility)
 ```
@@ -41,7 +44,6 @@ Sys.setenv("plotly_username" = username)
 Sys.setenv("plotly_api_key" = API)
 ```
 
-
 ## Visualisation
 ```{r}
 # Visualise your data
@@ -52,14 +54,14 @@ p <- plot_ly(Fertility, x=~Year, y=~Value, frame=~Age,
              type="scatter", mode="lines", fill="tozeroy", showlegend=FALSE,
              fillcolor="#fe6ba3", opacity=.2,
              line=list(width=0)) %>%
-    layout(title="Australian birth trends from 1975 to 2015",
+    layout(title="Australian birth trends by age from 1975 to 2015",
            annotations=list(x=1, y=0, xanchor="right", xref="paper", yref="paper", yshift=-37, 
                             text="Source: http://stat.data.abs.gov.au/Index.aspx?DataSetCode=FERTILITY_AGE_STATE", 
                             showarrow=F, 
                             font=list(size=8)),
            xaxis = list(nticks=9), 
-           yaxis = list(title="Total births"),
-           autosize=F, width=850, height=550, margin=m) 
+           yaxis = list(title="Number of births per 1,000 women"),
+           margin=m) 
 
 
 p

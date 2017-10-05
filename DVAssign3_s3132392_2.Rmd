@@ -1,0 +1,111 @@
+---
+title: "MATH2270 Assignment 3"
+subtitle: "Interactive storytelling_graph 2"
+output: html_notebook
+---
+
+## Student Details
+
+* Casey-Ann Charlesworth (s3132392)
+
+## "The Conversation" Article Details
+
+* The article this visualisation relates to is https://theconversation.com/slowing-the-biological-clock-wont-solve-family-planning-dilemmas-6088, specifically the section labelled "Birth trends"
+
+```{r}
+# Load your packages
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(magrittr)
+library(countrycode)
+```
+
+## Data
+```{r}
+# Load your data and prepare for visualisation
+Locations_full <- read.csv("age_specific_fertility_rates_locations.csv")
+Locations_full$CODE <- countrycode(Locations_full$country_name, "country.name", "iso3c")
+Locations <- Locations_full %>% filter(CODE!="NA" & year==2015)
+Locations$U35 <- (Locations$fertility_rate_15_19 + Locations$fertility_rate_20_24 +
+                    Locations$fertility_rate_25_29 + Locations$fertility_rate_30_34)/4
+Locations$U50 <- (Locations$fertility_rate_35_39 + Locations$fertility_rate_40_44 +
+                    Locations$fertility_rate_45_49)/3
+#View(Locations)
+```
+
+```{r}
+username <- "s3132392"
+API <- "MpL20nNz2tIIL1FAXxdf"
+Sys.setenv("plotly_username" = username)
+Sys.setenv("plotly_api_key" = API)
+```
+
+## Visualisation
+```{r}
+# Visualise your data
+
+# light grey boundaries
+l <- list(color = toRGB("grey"), width = 0.5)
+
+# specify map projection/options
+g <- list(
+  showframe = FALSE,
+  showcoastlines = FALSE,
+  projection = list(type = 'Mercator')
+)
+
+# Create menu options
+updatemenus <- list(
+  list(
+    active=0,
+    type = "buttons",
+    buttons = list(
+      
+      list(
+        label="Aged 34 and under",
+        method = "update",
+        args=list(list(visible=c(TRUE, FALSE)))
+      ),
+      
+      list(
+        label="Aged 35 and over",
+        method = "update", 
+        args=list(list(visible=c(FALSE, TRUE)))
+      )
+    )
+  )
+)
+
+p2 <- plot_geo(Locations) %>%
+  
+  add_trace(z=~U35, color=~U35, colors="Purples", text=~country_name,
+            locations=~CODE, marker=list(line=l), name="<35") %>%
+
+  colorbar(title="Births per 1,000 population",
+           x=0, y=0,
+           limits=c(0, 275)) %>%
+
+  add_trace(z=~U50, color=~U50, colors="Blues", text=~country_name,
+            locations=~CODE, marker=list(line=l), name="35+", visible=FALSE) %>%
+  
+  colorbar(title="Births per 1,000 population",
+           x=0, y=0,
+           limits=c(0, 275)) %>%
+  
+  layout(title="Fertility rate by country (2015 data)", #showlegend=FALSE,
+           annotations=list(x=0, y=0, xanchor="left",  
+                            text="Source: https://www.kaggle.com/census/international-data", 
+                            showarrow=F, 
+                            font=list(size=8)),
+         updatemenus=updatemenus,
+         geo=g) 
+
+
+#p2 <- colorbar(p2, title="Births per 1,000 population", limits=c(0, 275))
+
+
+
+plotly_POST(p2, filename="World-fertility", fileopt="overwrite", sharing="public")
+```
