@@ -12,6 +12,8 @@ output: html_notebook
 
 * The article this visualisation relates to is https://theconversation.com/slowing-the-biological-clock-wont-solve-family-planning-dilemmas-6088, specifically the section labelled "Birth trends"
 
+## Birth trends
+
 ```{r}
 # Load your packages
 library(readr)
