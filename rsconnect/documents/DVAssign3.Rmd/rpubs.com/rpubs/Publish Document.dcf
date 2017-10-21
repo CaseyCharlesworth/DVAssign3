@@ -1,0 +1,10 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/320144/656700dd95a84949b196aed7006a616f
+bundleId: https://api.rpubs.com/api/v1/document/320144/656700dd95a84949b196aed7006a616f
+url: http://rpubs.com/cacklehouse/320144
+when: 1508558598.264

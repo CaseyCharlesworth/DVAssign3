@@ -1,0 +1,154 @@
+---
+title: "Birth trends and the realities of fertility"
+subtitle: "Data Visualisation assignment 3 - Interactive storytelling"
+author: "Casey-Ann Charlesworth (s3132392)"
+institute: "RMIT University"
+date: "Last updated: `r format(Sys.time(), '%d %B %Y')`"
+output:
+  slidy_presentation:
+    font_adjustment: 0
+    highlight: haddock
+    mathjax: "default"
+    df_print: paged
+    footer: "Copyright (c) 2017, C Charlesworth"
+---
+
+# Data Visualisation assignment 3 - Interactive storytelling
+- My chosen article from *The Conversation* website is [*"Slowing the biological clock won't solve family planning dilemmas"*](https://theconversation.com/slowing-the-biological-clock-wont-solve-family-planning-dilemmas-6088)
+- I have created two separate plots, relating to two separate sections of the article, being:
+    * Birth trends
+    * The realities of fertility
+
+
+- Please note: although I spent many hours researching and modifying, I could not control the y-axis on colorbar/legend on the final plot from moving as it currently does
+  
+```{r setup, include=FALSE}
+# Load your packages
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(magrittr)
+library(countrycode)
+library(RColorBrewer)
+```
+
+```{r data birth trends, include=FALSE}
+# Load your data and prepare for visualisation
+Fertility_full <- read.csv("FERTILITY_AGE_STATE.csv")
+Fertility_full <- Fertility_full[c(2,4,6,10,11)]
+#View(Fertility_full)
+Fertility <- Fertility_full %>% filter(Measure=="Fertility rate" & Region=="Australia")
+Fertility <- Fertility %>% filter(Age != "15 - 19" & Age != "20 - 24" & Age != "25 - 29" & 
+                                    Age != "30 - 34" & Age != "35 - 39" & Age != "40 - 44" &
+                                    Age != "45 - 49" & Age != "All ages")
+Fertility$Age <- as.integer(as.character(Fertility$Age)) 
+#Fertility$Value <- as.integer(Fertility$Value)
+Fertility <- rename(Fertility, Year=Time)
+#View(Fertility)
+```
+
+```{r visualise birth trends, include=FALSE}
+
+m <- list(l = 50, r = 50, b = 220, t = 100, pad = 4)
+
+p1 <- plot_ly(Fertility, x=~Year, y=~Value, frame=~Age, 
+             type="scatter", mode="lines", fill="tozeroy", showlegend=FALSE,
+             fillcolor="#fe6ba3", opacity=.2,
+             line=list(width=0)) %>%
+    layout(title="Australian birth trends by age from 1975 to 2015",
+           annotations=list(x=1, y=0, xanchor="right", xref="paper", yref="paper", yshift=-37, 
+                            text="Source: http://stat.data.abs.gov.au/Index.aspx?DataSetCode=FERTILITY_AGE_STATE", 
+                            showarrow=F, 
+                            font=list(size=8)),
+           xaxis = list(nticks=9), 
+           yaxis = list(title="Births per 1,000 women"),
+           margin=m) 
+
+```
+
+# Visualisation:  *"Birth trends"*
+```{r, echo=FALSE}
+p1
+```
+
+```{r data, include=FALSE}
+# Load your data and prepare for visualisation
+Locations_full <- read.csv("age_specific_fertility_rates_locations.csv")
+Locations_full$CODE <- countrycode(Locations_full$country_name, "country.name", "iso3c")
+Locations <- Locations_full %>% filter(CODE!="NA" & year==2015)
+Locations$U35 <- (Locations$fertility_rate_15_19 + Locations$fertility_rate_20_24 +
+                    Locations$fertility_rate_25_29 + Locations$fertility_rate_30_34)/4
+Locations$U50 <- (Locations$fertility_rate_35_39 + Locations$fertility_rate_40_44 +
+                    Locations$fertility_rate_45_49)/3
+#View(Locations)
+```
+
+```{r visualisation, include=FALSE}
+# Visualise your data
+
+# light grey boundaries
+l <- list(color = toRGB("grey"), width = 0.5)
+
+# specify map projection/options
+g <- list(
+  showframe = FALSE,
+  showcoastlines = FALSE,
+  projection = list(type = 'Mercator')
+)
+
+# Create menu options
+updatemenus <- list(
+  list(
+    active=0,
+    type = "buttons",
+    buttons = list(
+      
+      list(
+        label="Aged 34 and under",
+        method = "update",
+        args=list(list(visible=c(TRUE, FALSE)))
+      ),
+      
+      list(
+        label="Aged 35 and over",
+        method = "update", 
+        args=list(list(visible=c(FALSE, TRUE)))
+      )
+    )
+  )
+)
+
+p2 <- plot_geo(Locations) %>%
+  
+  add_trace(z=~U35, color=~U35, colors="RdYlBu", text=~country_name,
+            locations=~CODE, marker=list(line=l), name="<35") %>%
+
+  colorbar(title="Births per \n1,000 women",
+           x=0, y=0,
+           limits=c(0, max(Locations$U35)),
+           which=1) %>%
+
+  add_trace(z=~U50, color=~U50, colors="RdYlBu", text=~country_name,
+            locations=~CODE, marker=list(line=l), name="35+", visible=FALSE) %>%
+  
+  colorbar(title="Births per \n1,000 women",
+           x=0, y=0,
+           limits=c(0, max(Locations$U35)),
+           which=2) %>%
+  
+  layout(title="Fertility rate by country: under/over 35 years of age (2015 data)", 
+           annotations=list(x=0, y=0, xanchor="left",  
+                            text="Source: https://www.kaggle.com/census/international-data", 
+                            showarrow=F, 
+                            font=list(size=8)),
+         updatemenus=updatemenus,
+         geo=g) 
+
+
+```
+
+# Visualisation:  *"The realities of fertility"*
+```{r, echo=FALSE}
+p2
+```

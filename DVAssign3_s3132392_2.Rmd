@@ -1,16 +1,18 @@
 ---
 title: "The realities of fertility"
-subtitle: "A look at fertility rates around the world for over and under 35 year olds"
 author: "Casey-Ann Charlesworth (s3132392)"
-institute: "RMIT University"
-date: "Last updated: `r format(Sys.time(), '%d %B %Y')`"
+date: 'Last updated: `r format(Sys.time(), ''%d %B %Y'')`'
 output:
   slidy_presentation:
-    font_adjustment: 0
-    highlight: haddock
-    mathjax: "default"
     df_print: paged
-    footer: "Copyright (c) 2017, C Charlesworth"
+    font_adjustment: 0
+    footer: Copyright (c) 2017, C Charlesworth
+    highlight: haddock
+    mathjax: default
+  beamer_presentation:
+    highlight: haddock
+subtitle: A look at fertility rates around the world for over and under 35 year olds
+institute: RMIT University
 ---
 
 # The realities of fertility
